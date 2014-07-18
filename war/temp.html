@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html ng-app="wardhelper">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title>領袖小幫手</title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+   <!--  <script src="cordova.js"></script> -->
+
+    <!-- your app's js -->
+    <script src="js/app.js"></script>
+    <script src="js/controller.js"></script>
+    <script src="js/service.js"></script>
+
+  </head>
+  <body ng-controller="MainCtrl" >
+
+    <ion-pane>
+      <ion-header-bar class="bar-stable">
+        <button class="button button-icon icon ion-refresh" ng-click="loadMembers()"></button>
+        <h1 class="title">支會系統</h1>
+        <button class="button button-icon icon ion-search" ng-click="needSearch = !needSearch" ng-class="{'button-royal': needSearch}"></button>
+      </ion-header-bar>
+      <ion-content>
+        <div class="row check-element animate-show" ng-show="needSearch">
+          <div class="col col-75">
+              <label class="item item-input"  >
+                <i class="icon ion-search placeholder-icon"></i>
+                <input type="search" placeholder="Search" ng-model="q">
+              </label>
+          </div>
+          <div class="col">
+            <label class="checkbox">
+              <input type="checkbox" ng-model="isActive" />
+            </label>
+            <span>活躍</span>
+          </div>
+        </div>
+        
+        <ion-list>
+          <ion-item ng-repeat="member in members | filter:q" class="item-avatar" href="#/detail/{{member.id}}">
+            <img src="{{ member.photo }}" />
+            <h2>{{ member.name }}</h2>
+            <p>{{ member.address }}, {{ member.tel_h }}</p>
+            <span class="badge">{{ member.gender }},{{ member.age }},{{ member.pristhood }}</span>
+          </ion-item>
+        </ion-list>
+       
+      </ion-content>
+    </ion-pane>
+  </body>
+</html>
