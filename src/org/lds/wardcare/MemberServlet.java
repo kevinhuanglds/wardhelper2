@@ -30,10 +30,6 @@ public class MemberServlet extends HttpServlet {
 			throws ServletException, IOException {
 
 		List<Entity> ents = MemberDAO.getAll();
-//		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-//		Query q = new Query("Member").addSort("name", SortDirection.DESCENDING);
-//		List<Entity> ents = ds.prepare(q).asList(
-//				FetchOptions.Builder.withLimit(10));
 
 		try {
 			JSONArray aryJson = Util.MembersToJsonArray(ents);

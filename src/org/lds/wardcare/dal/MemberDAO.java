@@ -7,11 +7,14 @@ import java.util.List;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -41,23 +44,29 @@ public class MemberDAO {
 	public static List<Entity> getAll() {
 		List<String> result = new ArrayList<String>();
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-		Query q = new Query(MemberDAO.EntityName);
+		Query q = new Query(MemberDAO.EntityName)
+						.addSort("name", SortDirection.ASCENDING);
 		List<Entity> ents = ds.prepare(q).asList(
-				FetchOptions.Builder.withLimit(500));
+				FetchOptions.Builder.withLimit(800));
 		
 		return ents ;
 	}
 	
 	public static Entity getByRecNo(String rec_no) {
 		Entity result = null ;
-		Key k = KeyFactory.createKey(MemberDAO.EntityName, rec_no);
+		//Key k = KeyFactory.createKey(MemberDAO.EntityName, rec_no);
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		Query q = new Query(MemberDAO.EntityName);
+		Filter recNoFilter =
+				  new FilterPredicate("rec_no",
+				                      FilterOperator.EQUAL,
+				                      rec_no);
+		q.setFilter(recNoFilter);
+		List<Entity> ents = ds.prepare(q).asList(
+				FetchOptions.Builder.withLimit(1));
+		if (ents.size() > 0)
+			result = ents.get(0);
 		
-		try {
-			result = ds.get(k);
-		}
-		catch (EntityNotFoundException ex) {
-		}
 		return result ;
 	}
 	

@@ -15,8 +15,9 @@ app.factory('Util', function () {
 })
 
 
-app.factory('ServiceConstant', function () {
-	_host = "http://localhost:8880";
+app.factory('ServiceConstant', function ($location) {
+	//var _host = "http://localhost:8880";
+	var _host = "//" + $location.host() + ":" + $location.port();
 
 	return {
 		member : _host + "/member",

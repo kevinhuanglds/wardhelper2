@@ -25,14 +25,12 @@ public class AttendanceServlet extends HttpServlet {
 		String date = req.getParameter("date");
 		try {
 			List<Entity> atts = AttendanceDAO.getByDate(date);
-//			List<Entity> atts = AttendanceDAO.getAll();
 			JSONArray ary = Util.AttendanceToJsonArray(atts);
 			Util.sendUTF8JSON(ary.toString(), resp);
 			//Gson gson = new Gson();
 			//String json = gson.toJson(atts);
 			//Util.sendUTF8JSON(json, resp);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Util.sendErrorJson(e.getLocalizedMessage(), resp);
 		}

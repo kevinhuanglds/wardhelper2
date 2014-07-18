@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.lds.wardcare.dal.AccountDAO;
+
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.users.User;
@@ -28,16 +30,17 @@ public class Util {
 	public static JSONObject MemberToJsonObject(Entity ent) throws JSONException {
 		JSONObject json = new JSONObject();
 		if (ent != null) {
+			json.put("id", ent.getKey().getId());
 			json.put("rec_no", ent.getProperty("rec_no").toString());
 			json.put("name", ent.getProperty("name").toString());
 			json.put("gender", ent.getProperty("gender").toString());
-			json.put("is_active", Boolean.parseBoolean(ent.getProperty("is_active").toString()));
-			json.put("age", Integer.parseInt(ent.getProperty("age").toString()));
-			json.put("pristhood", (ent.getProperty("pristhood") != null) ? ent.getProperty("pristhood").toString() : "");
-			json.put("tel_h", (ent.getProperty("tel_h") != null) ? ent.getProperty("tel_h").toString() : "");
-			json.put("address", (ent.getProperty("address") != null) ? ent.getProperty("address").toString() : "");
-			json.put("birthday", (ent.getProperty("birthday") != null) ? ent.getProperty("birthday").toString() : "");
-			json.put("confirm_date", (ent.getProperty("confirm_date") != null) ? ent.getProperty("confirm_date").toString() : "");
+			json.put("is_active", (ent.getProperty("is_active") == null ? false : Boolean.parseBoolean(ent.getProperty("is_active").toString())));
+//			json.put("age", Integer.parseInt(ent.getProperty("age").toString()));
+//			json.put("pristhood", (ent.getProperty("pristhood") != null) ? ent.getProperty("pristhood").toString() : "");
+//			json.put("tel_h", (ent.getProperty("tel_h") != null) ? ent.getProperty("tel_h").toString() : "");
+//			json.put("address", (ent.getProperty("address") != null) ? ent.getProperty("address").toString() : "");
+//			json.put("birthday", (ent.getProperty("birthday") != null) ? ent.getProperty("birthday").toString() : "");
+//			json.put("confirm_date", (ent.getProperty("confirm_date") != null) ? ent.getProperty("confirm_date").toString() : "");
 		}
 		return json;
 	}
@@ -96,9 +99,7 @@ public class Util {
 		resp.addHeader("Access-Control-Request-Method", "*");
 		
 		if (needAuth) {
-			UserService userService = UserServiceFactory.getUserService();
-			User user = userService.getCurrentUser();
-			if (user == null) {
+			if (!AccountDAO.isValidUser()) {
 				resp.getWriter().print("{ error : 'please signin first'}");
 			}
 			else {
@@ -132,5 +133,9 @@ public class Util {
 			result = false ;
 		}
 		return result ;
+	}
+	
+	public static void toLoginPage(HttpServletResponse resp) throws IOException {
+		resp.sendRedirect("/index.jsp");
 	}
 }

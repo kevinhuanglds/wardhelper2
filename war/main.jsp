@@ -73,7 +73,7 @@
         <ion-footer-bar class="bar-dark">
           <button  class="button button-clear " style="color:white; margin-left:4px;">
             <i class="ion-flame"></i>
-          kevinhuang.lds@gmail.com
+            <%= user.getEmail() %>
           </button>
         </ion-footer-bar>
       </ion-side-menu>

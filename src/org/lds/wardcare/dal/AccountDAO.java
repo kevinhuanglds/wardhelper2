@@ -37,9 +37,20 @@ public class AccountDAO {
 		List<Entity> ents = ds.prepare(q).asList(
 				FetchOptions.Builder.withDefaults());
 		for(Entity ent : ents) {
-			Object obj = ent.getProperty(keyField);
+//			Object obj = ent.getProperty(keyField);
 			result.add(ent.getProperty(keyField).toString());
 		}
+		return result ;
+	}
+	
+	public static boolean isValidUser() {
+		boolean result = false ;
+		
+		UserService userService = UserServiceFactory.getUserService();
+	    User user = userService.getCurrentUser();
+	    if (user != null) {
+	    	result = AccountDAO.isExised(user.getEmail());
+	    }
 		return result ;
 	}
 	

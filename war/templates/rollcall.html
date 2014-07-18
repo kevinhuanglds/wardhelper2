@@ -11,7 +11,7 @@
 
 <ion-content padding="true">
 	<!-- <div style="border : 1px rgb(221, 221, 221) solid; border-radius : 2px; padding : 0px 10px; float:left; margin-left: 8px ; width : 80px;"  > -->
-	<button class="button " ng-class="{ 'button-balanced' : att.attStatus, 'button-outline' : !att.attStatus}"  ng-click="setAttendance(att);" style="margin-left:8px;width:90px; margin-top:10px;" ng-repeat="att in attRecs">
+	<button class="button " ng-class="{ 'button-balanced' : att.attStatus, 'button-outline' : !att.attStatus, 'button-assertive' : att.isUpdating }"  ng-click="setAttendance(att);" style="margin-left:8px;width:135px; margin-top:10px;font-size:1.5em;" ng-repeat="att in attRecs">
 		{{ att.name }}
 	</button>
 	<!-- </div> -->

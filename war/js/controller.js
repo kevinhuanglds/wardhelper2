@@ -39,6 +39,9 @@ app.controller('RollCallCtrl', function ($scope, $ionicModal, Members, $http, Se
 
 	/*  load attendance records for specificed date */
 	var loadAttendRecords = function(date) {
+		$ionicLoading.show({
+	      template: '載入 ' + target_date + '出席紀錄...'
+	    });
 		isLoadingRollCall = true ;
 		atts = [];	//reset 
 		dicAtts = {}; //reset
@@ -47,7 +50,7 @@ app.controller('RollCallCtrl', function ($scope, $ionicModal, Members, $http, Se
 		.success(function(data, status) {
 			atts = data ;
 			angular.forEach(data, function(att) {
-				dicAtts[att.member.name] = att;
+				dicAtts[att.member.id] = att;
 			});
 			$scope.count = atts.length ;
 			isLoadingRollCall = false;
@@ -90,8 +93,9 @@ app.controller('RollCallCtrl', function ($scope, $ionicModal, Members, $http, Se
 				att.rec_no = member.rec_no;
 				att.name = member.name;
 				att.date = target_date;
-				var attRec = dicAtts[member.rec_no];
+				var attRec = dicAtts[member.id];
 				att.attStatus = (attRec !== undefined);
+				att.isUpdating = false ;	//是否正在更新中，目的是當使用者按下按鈕時，避免 Server 處理太久，畫面看起來鈍鈍的，所以先變個暫時的顏色。
 				result.push(att);
 			};
 
@@ -102,6 +106,9 @@ app.controller('RollCallCtrl', function ($scope, $ionicModal, Members, $http, Se
 
 	/*  新增或修改出席紀錄  */
 	$scope.setAttendance = function(att) {
+		
+		att.isUpdating = true;
+
 		var mode = (att.attStatus) ? "delete" : "add";	//如果存在，就刪除，否則就增加
 
 		var request = $http({
@@ -111,8 +118,12 @@ app.controller('RollCallCtrl', function ($scope, $ionicModal, Members, $http, Se
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         });
 
+
         request.success(
             function( html ) {
+
+            	att.isUpdating = false;
+
             	if (att.attStatus) {	
             		$scope.count -= 1;	//原本有出息，但被取消，所以要減一。
             	}
@@ -122,7 +133,9 @@ app.controller('RollCallCtrl', function ($scope, $ionicModal, Members, $http, Se
             	att.attStatus = !att.attStatus ;
 
             }
-        );
+        ).error(function() {
+        	att.isUpdating = false ;
+        });
 	};
 
 	$scope.count = 0;

@@ -20,14 +20,13 @@ public class AccountServlet extends HttpServlet {
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		String userID = req.getParameter(AccountServlet.userID);
-		AccountDAO.put(userID);
+		
 	}
 	
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
 			throws ServletException ,IOException {
-		
-		this.doPut(req, resp);
+		String userID = req.getParameter(AccountServlet.userID);
+		AccountDAO.put(userID);
 	};
 	
 	@Override
