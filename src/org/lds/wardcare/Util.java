@@ -31,7 +31,7 @@ public class Util {
 			json.put("rec_no", ent.getProperty("rec_no").toString());
 			json.put("name", ent.getProperty("name").toString());
 			json.put("gender", ent.getProperty("gender").toString());
-			json.put("is_active", Boolean.parseBoolean(ent.getProperty("gender").toString()));
+			json.put("is_active", Boolean.parseBoolean(ent.getProperty("is_active").toString()));
 			json.put("age", Integer.parseInt(ent.getProperty("age").toString()));
 			json.put("pristhood", (ent.getProperty("pristhood") != null) ? ent.getProperty("pristhood").toString() : "");
 			json.put("tel_h", (ent.getProperty("tel_h") != null) ? ent.getProperty("tel_h").toString() : "");

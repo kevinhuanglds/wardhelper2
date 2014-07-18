@@ -2,17 +2,17 @@
   <button class="button button-icon" ng-click="toggleLeft()">
     <i class="icon ion-navicon-round"></i>
   </button>
-  <h1 class="title"> 2014/07/13 點名  ({{ count }} / {{ members.length}} )</h1>
+  <h1 class="title"> {{ queryDateCond | date: "yyyy-MM-dd" }}  點名  ({{ count }} / {{ attRecs.length}} )</h1>
   <div class="buttons">
+    <!-- <ion-toggle ng-model="canEdit" toggle-class="toggle-calm">編輯</ion-toggle> -->
   	<button class="button button-icon ion-ios7-more" ng-click="openModal()"></button>
   </div>
 </ion-header-bar>
 
 <ion-content padding="true">
-
 	<!-- <div style="border : 1px rgb(221, 221, 221) solid; border-radius : 2px; padding : 0px 10px; float:left; margin-left: 8px ; width : 80px;"  > -->
-	<button class="button " ng-class="{ 'button-balanced' : member.attStatus, 'button-outline' : !member.attStatus}"  ng-click="setAttendance(member);" style="margin-left:8px;width:90px; margin-top:10px;" ng-repeat="member in members">
-		{{ member.name }}
+	<button class="button " ng-class="{ 'button-balanced' : att.attStatus, 'button-outline' : !att.attStatus}"  ng-click="setAttendance(att);" style="margin-left:8px;width:90px; margin-top:10px;" ng-repeat="att in attRecs">
+		{{ att.name }}
 	</button>
 	<!-- </div> -->
 </ion-content>
@@ -26,13 +26,14 @@
     <ion-content>
       <label class="item item-input">
 		  <span class="input-label">Date</span>
-		  <input type="date" ng-value="queryDateCond" >
+		  <input type="date" ng-model="queryDateCond" id="theDate">
 	  </label>
 
       
     </ion-content>
     <ion-footer-bar class="bar-royal">
-      <button class="button button-royal" ng-click="closeModal()">確定</button>
+      <button class="button button-royal" ng-click="setDate()">確定</button>
+      <button class="button button-royal" ng-click="cancelDateSetting()">取消</button>
     </ion-footer-bar>
   </div>
 </script>

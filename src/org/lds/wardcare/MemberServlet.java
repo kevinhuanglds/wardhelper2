@@ -56,14 +56,14 @@ public class MemberServlet extends HttpServlet {
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-		Query q = new Query("Member").addSort("name", SortDirection.DESCENDING);
-		List<Entity> ents = ds.prepare(q).asList(
-				FetchOptions.Builder.withLimit(10));
-		
-		if (ents.size() < 1) {	//若無紀錄，則先
-			
-		}
+		String rec_no = req.getParameter("rec_no");
+		String name = req.getParameter("name");
+		String gender = req.getParameter("gender");
+		String tel_no = req.getParameter("tel_no");
+		String address = req.getParameter("address");
+		int age = Integer.parseInt(req.getParameter("age"));
+		String birthday = req.getParameter("birthday");
+		String confirm = req.getParameter("confirm_date");
 	}
 	
 	

@@ -41,6 +41,13 @@ public class AttendanceServlet extends HttpServlet {
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
+		
+	}
+	
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		
 		String mode= req.getParameter("mode");
 		String date = req.getParameter("date");
 		String rec_no = req.getParameter("rec_no");
@@ -52,11 +59,5 @@ public class AttendanceServlet extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		this.doPut(req, resp);
 	}
 }
