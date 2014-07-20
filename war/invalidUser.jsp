@@ -2,13 +2,13 @@
 <%@ page import="com.google.appengine.api.users.User" %>
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
-<%@ page import="java.util.List" %>
 <%
-	UserService userService = UserServiceFactory.getUserService();
+  UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
-    if (user != null) {
-    	response.sendRedirect("/main.jsp");
+    if (user == null) {
+      response.sendRedirect("/index.jsp");
     }
+
 %>
 <!DOCTYPE html>
 <html ng-app="wardhelper">
@@ -37,13 +37,31 @@
   </head>
   <body>
   	<div class="card">
-  	  <div class="item item-divider">
-	    新竹第一支會，領袖小幫手系統
-	  </div>
-	  <div class="item item-text-wrap" >
-
-	    <a class="button button-balanced" href="<%= userService.createLoginURL(request.getRequestURI()) %>" style="margin-left:auto; margin-right:auto;">按這裡登入系統</a>
+	  <div class="item item-text-wrap">
+	    您不是合法的使用者，系統將於 <span id="theTime" style="margin: 4px 10px;"></span>秒後自動登出系統 !
 	  </div>
 	</div>
+	<script>
+		var count=5;
+
+		document.getElementById("theTime").innerHTML = count ;
+
+		var counter=setInterval(timer, 1000); //1000 will  run it every 1 second
+
+		function timer()
+		{
+		  count=count-1;
+		  document.getElementById("theTime").innerHTML = count ;
+		  if (count <= 0)
+		  {
+		  	window.location='<%= userService.createLogoutURL("/index.jsp") %>';
+		     // clearInterval(counter);
+		     //counter ended, do something here
+		     return;
+		  }
+
+		  //Do code for showing the number of seconds here
+		}
+	</script>
   </body>
 </html>

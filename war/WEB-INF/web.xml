@@ -20,6 +20,22 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-name>Attendance</servlet-name>
 		<servlet-class>org.lds.wardcare.AttendanceServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>UploadMember</servlet-name>
+		<servlet-class>org.lds.wardcare.UploadMemberServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>SetActiveStatus</servlet-name>
+		<servlet-class>org.lds.wardcare.SetActiveStatusServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SetActiveStatus</servlet-name>
+		<url-pattern>/set_active</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>UploadMember</servlet-name>
+		<url-pattern>/upload_member</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Attendance</servlet-name>
 		<url-pattern>/attendance</url-pattern>

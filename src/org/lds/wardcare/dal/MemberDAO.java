@@ -104,7 +104,9 @@ public class MemberDAO {
 		
 		Entity ent = null ;
 		if (! isExised(rec_no)) {
-			ent = new Entity(MemberDAO.EntityName, rec_no);
+			ent = new Entity(MemberDAO.EntityName);
+			ent.setProperty(keyField, rec_no);
+			ent.setProperty(ISACTIVE, is_active);
 		}
 		else {
 			ent = getByRecNo(rec_no);
@@ -121,7 +123,7 @@ public class MemberDAO {
 			birthday , confirm_date, is_active, is_endowment, is_rm , 
 			 is_sealed, pristhood */
 	    
-	    ent.setProperty(keyField, rec_no);
+	    
 	    ent.setProperty(NAME, name);
 	    ent.setProperty(GENDER, gender);
 	    ent.setProperty(TEL_H, tel_h);
@@ -129,7 +131,7 @@ public class MemberDAO {
 	    ent.setProperty(AGE, age);
 	    ent.setProperty(BIRTHDAY, birthday);
 	    ent.setProperty(CONFIRM_DATE, confirm_date);
-	    ent.setProperty(ISACTIVE, is_active);
+	    
 	    ent.setProperty(IS_ENDOWMENT, is_endowment);
 	    ent.setProperty(IS_RM, is_rm);
 	    ent.setProperty(IS_SEALED, is_sealed);
@@ -139,5 +141,20 @@ public class MemberDAO {
 	    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    datastore.put(ent);
 		
+	}
+	
+	public static void setActive(String rec_no, boolean is_active) {
+		Entity ent  = getByRecNo(rec_no);
+		ent.setProperty(ISACTIVE, is_active);
+		
+		UserService userService = UserServiceFactory.getUserService();
+	    User user = userService.getCurrentUser();
+	    ent.setProperty("author", user);
+	    
+	    Date date = new Date();
+	    ent.setProperty("update_date", date);
+		
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+	    datastore.put(ent);
 	}
 }

@@ -3,11 +3,16 @@
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ page import="java.util.List" %>
+<%@ page import="org.lds.wardcare.dal.AccountDAO" %>
 <%
   UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
     if (user == null) {
       response.sendRedirect("/index.jsp");
+    }
+
+    if (!AccountDAO.isValidUser()) {
+      response.sendRedirect("/invalidUser.jsp");
     }
 %>
 
@@ -35,6 +40,7 @@
     <script src="js/app.js"></script>
     <script src="js/controller.js"></script>
     <script src="js/service.js"></script>
+    <script src="js/directive.js"></script>
 
   </head>
   <body ng-controller="MainCtrl" >
@@ -68,6 +74,20 @@
                 Grammy
               </span>
             </a>
+            <a class="item item-icon-left" ui-sref="import"  ng-click="toggleLeft();">
+              <i class="icon ion-ios7-people"></i>
+              匯入資料
+              <span class="item-note">
+                
+              </span>
+            </a>
+            <a class="item item-icon-left" ui-sref="setActive"  ng-click="toggleLeft();">
+              <i class="icon ion-ios7-sunny"></i>
+              設定活躍狀況
+              <span class="item-note">
+                
+              </span>
+            </a>
           </div>
         </ion-content>
         <ion-footer-bar class="bar-dark">
@@ -75,6 +95,7 @@
             <i class="ion-flame"></i>
             <%= user.getEmail() %>
           </button>
+          <a class="button button-icon ion-power" href="<%= userService.createLogoutURL("/index.jsp") %>" ></a>
         </ion-footer-bar>
       </ion-side-menu>
   </ion-side-menus>

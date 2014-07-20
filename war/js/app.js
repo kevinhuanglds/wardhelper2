@@ -37,7 +37,18 @@ app.config(function ( $stateProvider, $urlRouterProvider) {
   .state ('info', {
     url : '/info',
     templateUrl : 'templates/info.html'
+  })
+  .state ('import', {
+    url : '/import',
+    templateUrl : 'templates/import.html',
+    controller : 'ImportCtrl'
+  })
+  .state ('setActive', {
+    url : '/setActive',
+    templateUrl : 'templates/setActive.html',
+    controller : 'SetActiveCtrl'
   });
+  ;
 });
 
 

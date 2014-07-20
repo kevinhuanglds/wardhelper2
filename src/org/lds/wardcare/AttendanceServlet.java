@@ -22,6 +22,7 @@ public class AttendanceServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		
+		
 		String date = req.getParameter("date");
 		try {
 			List<Entity> atts = AttendanceDAO.getByDate(date);

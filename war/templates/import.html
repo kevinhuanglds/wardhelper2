@@ -1,0 +1,35 @@
+<ion-header-bar class="bar-positive">
+  <button class="button button-icon" ng-click="toggleLeft()">
+    <i class="icon ion-navicon-round"></i>
+  </button>
+  <h1 class="title">匯入資料</h1>
+</ion-header-bar>
+<ion-content padding="true">
+	<div id="drop_zone" style="border: 2px dashed lightgray; padding: 4px 8px;color:lightgray;">
+		<input type="file" on-read-file="showContent($fileContent)" />
+
+		<button class="button button-positive button-clear" ng-disabled="parseFail" ng-click="startUpload()" style="float:right;">開始上傳</button>
+	</div>
+	<output id="list">
+		<div class="row" ng-repeat="rec in MemRecs">
+		  <div class="col">{{ rec.rec_no }}</div>
+		  <div class="col">{{ rec.name }}</div>
+		  <div class="col">{{ rec.gender }}</div>
+		  <div class="col">{{ rec.age }}</div>
+		  <div class="col">{{ rec.birthday }}</div>
+		  <div class="col">{{ rec.tel_h }}</div>
+		  <div class="col">{{ rec.address }}</div>
+		  <div class="col">{{ rec.in_date }}</div>
+		  <div class="col">{{ rec.confirm_date }}</div>
+		  <div class="col">{{ rec.pristhood }}</div>
+		  <div class="col">{{ rec.is_rm }}</div>
+		  <div class="col">{{ rec.is_endow }}</div>
+		  <div class="col">{{ rec.is_sealed }}</div>
+		  <div class="col">{{ rec.upload_status }}</div>
+		</div>
+
+
+	</output>
+
+	
+</ion-content>

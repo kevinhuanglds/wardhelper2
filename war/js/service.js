@@ -22,7 +22,9 @@ app.factory('ServiceConstant', function ($location) {
 	return {
 		member : _host + "/member",
 		attendance : _host + "/attendance",
-		account : _host + "/account"
+		account : _host + "/account",
+		update_member : _host + "/upload_member",
+		set_active : _host + "/set_active"
 	};
 });
 

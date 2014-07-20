@@ -24,10 +24,13 @@ import com.google.appengine.api.users.UserServiceFactory;
  */
 public class AccountDAO {
 	private static final String keyField = "userid";
-	public static final String EntityName = "Account";	//the userid list who can use this application.
+	public static final String EntityName = "Account"; // the userid list who
+														// can use this
+														// application.
 
 	/**
 	 * Get All the userid in the Account Storage.
+	 * 
 	 * @return
 	 */
 	public static List<String> getAll() {
@@ -36,46 +39,70 @@ public class AccountDAO {
 		Query q = new Query(AccountDAO.EntityName);
 		List<Entity> ents = ds.prepare(q).asList(
 				FetchOptions.Builder.withDefaults());
-		for(Entity ent : ents) {
-//			Object obj = ent.getProperty(keyField);
+		for (Entity ent : ents) {
+			// Object obj = ent.getProperty(keyField);
 			result.add(ent.getProperty(keyField).toString());
 		}
-		return result ;
+		return result;
 	}
-	
+
 	public static boolean isValidUser() {
-		boolean result = false ;
-		
+		boolean result = false;
+
 		UserService userService = UserServiceFactory.getUserService();
-	    User user = userService.getCurrentUser();
-	    if (user != null) {
-	    	result = AccountDAO.isExised(user.getEmail());
-	    }
-		return result ;
+		User user = userService.getCurrentUser();
+		if (user != null) {
+			String email = user.getEmail();
+			if (email.equals("kevinhuang.lds@gmail.com")
+					|| email.equals("test@example.com")
+					|| email.equals("larryyang36@gmail.com")) {
+				result = true;
+			} else {
+				result = AccountDAO.isExised(user.getEmail());
+			}
+		}
+		return result;
 	}
-	
+
+	public static boolean isAdmin() {
+		boolean result = false;
+
+		UserService userService = UserServiceFactory.getUserService();
+		User user = userService.getCurrentUser();
+		if (user != null) {
+			String email = user.getEmail();
+			if (email.equals("kevinhuang.lds@gmail.com")
+					|| email.equals("test@example.com")
+					|| email.equals("larryyang36@gmail.com")) {
+				result = true;
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * Check if the userid existed in the Account Storage
+	 * 
 	 * @param userID
 	 * @return
 	 */
 	public static boolean isExised(String userID) {
-		boolean result = false ;
-		
+		boolean result = false;
+
 		Key k = KeyFactory.createKey(AccountDAO.EntityName, userID);
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-		
+
 		try {
 			Entity ent = ds.get(k);
 			result = true;
+		} catch (EntityNotFoundException ex) {
 		}
-		catch (EntityNotFoundException ex) {
-		}
-		return result ;
+		return result;
 	}
-	
+
 	/**
 	 * Remove an userid from the Account Storages.
+	 * 
 	 * @param userID
 	 */
 	public static void remove(String userID) {
@@ -84,25 +111,27 @@ public class AccountDAO {
 		if (isExised(userID))
 			ds.delete(k);
 	}
-	
+
 	/**
 	 * Add an userid into the Account storages.
-	 * @param userID 
+	 * 
+	 * @param userID
 	 */
 	public static void put(String userID) {
-		if (! isExised(userID)) {
+		if (!isExised(userID)) {
 			Entity greeting = new Entity(AccountDAO.EntityName, userID);
-		    greeting.setProperty(keyField, userID);
-		    
-		    UserService userService = UserServiceFactory.getUserService();
-		    User user = userService.getCurrentUser();
-		    greeting.setProperty("author", user);
-		    
-		    Date date = new Date();
-		    greeting.setProperty("date", date);
-		    
-		    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		    datastore.put(greeting);
+			greeting.setProperty(keyField, userID);
+
+			UserService userService = UserServiceFactory.getUserService();
+			User user = userService.getCurrentUser();
+			greeting.setProperty("author", user);
+
+			Date date = new Date();
+			greeting.setProperty("date", date);
+
+			DatastoreService datastore = DatastoreServiceFactory
+					.getDatastoreService();
+			datastore.put(greeting);
 		}
 	}
 }

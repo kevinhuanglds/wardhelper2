@@ -35,12 +35,15 @@ public class Util {
 			json.put("name", ent.getProperty("name").toString());
 			json.put("gender", ent.getProperty("gender").toString());
 			json.put("is_active", (ent.getProperty("is_active") == null ? false : Boolean.parseBoolean(ent.getProperty("is_active").toString())));
-//			json.put("age", Integer.parseInt(ent.getProperty("age").toString()));
-//			json.put("pristhood", (ent.getProperty("pristhood") != null) ? ent.getProperty("pristhood").toString() : "");
-//			json.put("tel_h", (ent.getProperty("tel_h") != null) ? ent.getProperty("tel_h").toString() : "");
-//			json.put("address", (ent.getProperty("address") != null) ? ent.getProperty("address").toString() : "");
-//			json.put("birthday", (ent.getProperty("birthday") != null) ? ent.getProperty("birthday").toString() : "");
-//			json.put("confirm_date", (ent.getProperty("confirm_date") != null) ? ent.getProperty("confirm_date").toString() : "");
+			json.put("is_endowment", (ent.getProperty("is_endowment") == null ? false : Boolean.parseBoolean(ent.getProperty("is_endowment").toString())));
+			json.put("is_rm", (ent.getProperty("is_rm") == null ? false : Boolean.parseBoolean(ent.getProperty("is_rm").toString())));
+			json.put("is_sealed", (ent.getProperty("is_sealed") == null ? false : Boolean.parseBoolean(ent.getProperty("is_sealed").toString())));
+			json.put("age", Integer.parseInt(ent.getProperty("age").toString()));
+			json.put("pristhood", (ent.getProperty("pristhood") != null) ? ent.getProperty("pristhood").toString() : "");
+			json.put("tel_h", (ent.getProperty("tel_h") != null) ? ent.getProperty("tel_h").toString() : "");
+			json.put("address", (ent.getProperty("address") != null) ? ent.getProperty("address").toString() : "");
+			json.put("birthday", (ent.getProperty("birthday") != null) ? ent.getProperty("birthday").toString() : "");
+			json.put("confirm_date", (ent.getProperty("confirm_date") != null) ? ent.getProperty("confirm_date").toString() : "");
 		}
 		return json;
 	}

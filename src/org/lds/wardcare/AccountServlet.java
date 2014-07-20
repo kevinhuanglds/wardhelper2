@@ -25,8 +25,17 @@ public class AccountServlet extends HttpServlet {
 	
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
 			throws ServletException ,IOException {
-		String userID = req.getParameter(AccountServlet.userID);
-		AccountDAO.put(userID);
+		if (req.getParameter("reset") != null) {
+			AccountDAO.put("kevinhuang.lds@gmail.com");
+			AccountDAO.put("larryyang36@gmail.com");
+			AccountDAO.put("jack@gmail.com");
+			AccountDAO.put("kevinhuang.lds@gmail.com");
+			AccountDAO.put("test@example.com");
+		}
+		else {
+			String userID = req.getParameter(AccountServlet.userID);
+			AccountDAO.put(userID);
+		}
 	};
 	
 	@Override
