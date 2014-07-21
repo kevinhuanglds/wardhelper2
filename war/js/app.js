@@ -36,7 +36,8 @@ app.config(function ( $stateProvider, $urlRouterProvider) {
   })
   .state ('info', {
     url : '/info',
-    templateUrl : 'templates/info.html'
+    templateUrl : 'templates/info.html',
+    controller: 'InfoCtrl'
   })
   .state ('import', {
     url : '/import',

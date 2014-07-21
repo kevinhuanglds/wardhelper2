@@ -40,10 +40,14 @@ app.controller('RollCallCtrl', function ($scope, $ionicModal, Members, $http, Se
 	$scope.queryDateCond = new Date() ;
 	var target_date = Util.formatDate($scope.queryDateCond);
 	
+	$scope.canEdit = false ;
 
 
 	/*  load attendance records for specificed date */
 	var loadAttendRecords = function(date) {
+		
+		$scope.canEdit = false ;
+
 		$ionicLoading.show({
 	      template: '載入 ' + target_date + '出席紀錄...'
 	    });
@@ -112,6 +116,15 @@ app.controller('RollCallCtrl', function ($scope, $ionicModal, Members, $http, Se
 	/*  新增或修改出席紀錄  */
 	$scope.setAttendance = function(att) {
 		
+		if (!$scope.canEdit) {
+			var msg = "開啟編輯設定後才可以開始點名，是否現在要開啟呢？"
+			var result = confirm(msg);
+			if (result) {
+				$scope.canEdit = true ;
+			}
+			return;
+		}
+
 		att.isUpdating = true;
 
 		var mode = (att.attStatus) ? "delete" : "add";	//如果存在，就刪除，否則就增加
@@ -324,6 +337,92 @@ app.controller('SetActiveCtrl', function ($scope, $http, Members, ServiceConstan
             	member.isUpdating = false ;
         });
 	}
+
+});
+
+/*
+
+*/
+app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant) {
+	
+	$scope.members = Members.getMembers();
+	$scope.orgs = OrgConstant;
+	var memElder = [];
+	var memRelief = [];
+	var memYM = [];
+	var memYW = [];
+	var memPrimary =[];
+
+	var active_key = "all";
+	$scope.setActive = function(key) {
+		active_key = key;
+		showMems(key);
+	}
+
+	$scope.isActive = function(key) {
+		return (key === active_key);
+	}
+
+	/*  確保只有一個 Member 被選取 */
+	var showMems = function(key) {
+		if (key === "elder") {
+			$scope.members = memElder;
+		}
+		else if (key === "relief") {
+			$scope.members = memRelief;
+		}
+		else if (key === "ym") {
+			$scope.members = memYM;
+		}
+		else if (key === "yw") {
+			$scope.members = memYW;
+		}
+		else if (key === "primary") {
+			$scope.members = memPrimary;
+		}
+		else {
+			$scope.members = Members.getMembers();
+		}
+	}
+
+	/*  確保只有一個 Member 被選取 */
+	var active_member_rec_no = "";
+	$scope.setMemActive = function(mem) {
+		active_member_rec_no = mem.rec_no ; 
+	}
+
+	$scope.isMemActive = function(mem) {
+		return (mem.rec_no === active_member_rec_no);
+	}
+
+
+	/* 把成員分類到各個組織 */
+	var filterMem = function() {
+		var mems = Members.getMembers();
+		angular.forEach(mems, function(mem) {
+			if (mem.age < 12) {
+				memPrimary.push(mem);
+			}
+			else if (mem.age > 17) {
+				if (mem.gender == "男") {
+					memElder.push(mem);
+				}
+				else {
+					memRelief.push(mem);
+				}
+			}
+			else {
+				if (mem.gender == "男") {
+					memYM.push(mem);
+				}
+				else {
+					memYW.push(mem);
+				}
+			}
+		});
+	}
+
+	filterMem();
 
 });
 

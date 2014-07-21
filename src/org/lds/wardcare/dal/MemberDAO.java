@@ -102,7 +102,7 @@ public class MemberDAO {
 							boolean is_active, boolean is_endowment, boolean is_rm , boolean is_sealed,
 							String pristhood) {
 		
-		Entity ent = null ;
+		Entity ent = null;
 		if (! isExised(rec_no)) {
 			ent = new Entity(MemberDAO.EntityName);
 			ent.setProperty(keyField, rec_no);

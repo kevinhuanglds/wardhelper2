@@ -5,6 +5,15 @@
   <h1 class="title"> {{ queryDateCond | date: "yyyy-MM-dd" }}  點名  ({{ count }} / {{ attRecs.length}} )</h1>
   <div class="buttons">
     <!-- <ion-toggle ng-model="canEdit" toggle-class="toggle-calm">編輯</ion-toggle> -->
+    <label class="toggle toggle-energized" style="margin-right:20px;">
+       <input type="checkbox" ng-model="canEdit">
+       <div class="track">
+         <div class="handle"></div>
+       </div>
+     </label>
+<!--     <label class="checkbox">
+    <input type="checkbox" ng-model="canEdit" />
+    </label> -->
   	<button class="button button-icon ion-ios7-more" ng-click="openModal()"></button>
   </div>
 </ion-header-bar>

@@ -28,6 +28,17 @@ app.factory('ServiceConstant', function ($location) {
 	};
 });
 
+app.factory('OrgConstant', function () {
+	
+	return [
+		{ name: '長定組', abbr :'長定', key: 'elder' },
+		{ name: '慈助會', abbr :'慈助', key: 'relief' },
+		{ name: '男青年', abbr :'男青', key: 'ym' },
+		{ name: '女青年', abbr :'女青', key: 'yw' },
+		{ name: '初級會', abbr :'初級', key: 'primary' }
+	];
+});
+
 
 app.factory('Members', function ($http, ServiceConstant) {
 	var _members=[];	
