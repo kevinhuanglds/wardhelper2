@@ -1,0 +1,43 @@
+<div class="modal">
+    <ion-header-bar class="bar-royal">
+      <h1 class="title">{{ currentMember.name }} ( {{ currentMember.rec_no }})</h1>
+      <button class="button button-icon ion-ios7-close-outline" ng-click="closeModal()"></button>
+    </ion-header-bar>
+    <ion-content>
+    	<div class="row">
+		  	<div class="col col-55 info-font"> 
+		  		<i class="fa fa-male fa-lg" ng-if="currentMember.gender=='男'"></i>
+		  		<i class="fa fa-female fa-lg" ng-if="currentMember.gender=='女'"></i>
+		  		{{ currentMember.age }} 歲
+		  	</div>
+		  	<div class="col col-33 info-font">
+		  		<i class="icon ion-egg"></i>
+		  		{{ currentMember.birthday }}
+		  	</div>
+		  	<div class="col col-33 info-font"> 
+		  		<i class="fa fa-sun-o fa-lg"></i>
+		  		{{ currentMember.confirm_date }}
+		  	</div>
+		</div>
+		<div class="row">
+			<div class="col info-font">
+				<a href="tel://{{currentMember.tel_h}}">
+					<i class="icon ion-ios7-telephone"></i>
+					{{ currentMember.tel_h }}
+				</a>
+			</div>
+			<div class="col col-66 info-font">
+				<i class="icon ion-home"></i>
+				新竹市{{ currentMember.address }}
+			</div>
+		</div>
+		<div class="row">
+
+			<div class="col-100" id="map" data-tap-disabled="true"></div>
+		</div>
+    	
+    </ion-content>
+    <ion-footer-bar class="bar-royal">
+      <button class="button button-royal" ng-click="closeModal()">確定</button>
+    </ion-footer-bar>
+</div>

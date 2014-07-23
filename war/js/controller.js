@@ -343,10 +343,18 @@ app.controller('SetActiveCtrl', function ($scope, $http, Members, ServiceConstan
 /*
 
 */
-app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant) {
+app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant, $ionicModal, $compile) {
 	
-	$scope.members = Members.getMembers();
-	$scope.orgs = OrgConstant;
+	
+
+	var fillUI = function() {
+		$scope.members = Members.getMembers();
+		$scope.orgs = OrgConstant;
+		filterMem();
+	};
+
+	// $scope.members = Members.getMembers();
+	// $scope.orgs = OrgConstant;
 	var memElder = [];
 	var memRelief = [];
 	var memYM = [];
@@ -354,16 +362,17 @@ app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant) {
 	var memPrimary =[];
 
 	var active_key = "all";
+	//指定要顯示的組織別
 	$scope.setActive = function(key) {
 		active_key = key;
 		showMems(key);
 	}
-
+	//判斷該組織別的按鈕是否是 active
 	$scope.isActive = function(key) {
 		return (key === active_key);
 	}
 
-	/*  確保只有一個 Member 被選取 */
+	/*  篩選資料 */
 	var showMems = function(key) {
 		if (key === "elder") {
 			$scope.members = memElder;
@@ -389,10 +398,17 @@ app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant) {
 	var active_member_rec_no = "";
 	$scope.setMemActive = function(mem) {
 		active_member_rec_no = mem.rec_no ; 
+		showMemberInfo(mem.rec_no);
 	}
 
 	$scope.isMemActive = function(mem) {
 		return (mem.rec_no === active_member_rec_no);
+	}
+
+	var showMemberInfo = function(rec_no) {
+
+		$scope.currentMember = Members.getMemberByRecNo(rec_no);
+		$scope.openModal();
 	}
 
 
@@ -422,7 +438,133 @@ app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant) {
 		});
 	}
 
-	filterMem();
+	// filterMem();
+
+	$ionicModal.fromTemplateUrl('templates/info-detail.html', {
+	    scope: $scope,
+	    animation: 'slide-in-up'
+	}).then(function(modal) {
+	    $scope.modal = modal;
+	    // initMap();
+	});
+
+	$scope.openModal = function() {
+	    $scope.modal.show();
+		initMap();
+	};
+	$scope.closeModal = function() {
+	    $scope.modal.hide();
+	};
+	  //Cleanup the modal when we're done with it!
+	$scope.$on('$destroy', function() {
+	    $scope.modal.remove();
+	});
+
+	//Google Maps
+	var map ;
+	var geocoder ;
+
+	function initMap() {
+        var myLatlng = new google.maps.LatLng(24.815102099999997,120.979858);
+        
+        var mapOptions = {
+          center: myLatlng,
+          zoom: 16,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        map = new google.maps.Map(document.getElementById("map"),
+            mapOptions);
+
+        geocoder = new google.maps.Geocoder();
+
+        codeAddress($scope.currentMember.address);
+        
+        //Marker + infowindow + angularjs compiled ng-click
+        // var contentString = "<div><a ng-click='clickTest()'>Click me!</a></div>";
+        // var compiled = $compile(contentString)($scope);
+
+        // var infowindow = new google.maps.InfoWindow({
+        //   content: compiled[0]
+        // });
+
+        // // var marker = new google.maps.Marker({
+        // //   position: myLatlng,
+        // //   map: map,
+        // //   title: 'Uluru (Ayers Rock)'
+        // // });
+
+        // google.maps.event.addListener(marker, 'click', function() {
+        //   infowindow.open(map,marker);
+        // });
+
+        $scope.map = map;
+    }
+      
+    $scope.centerOnMe = function() {
+        if(!$scope.map) {
+          return;
+        }
+
+        $scope.loading = $ionicLoading.show({
+          content: 'Getting current location...',
+          showBackdrop: false
+        });
+
+        navigator.geolocation.getCurrentPosition(function(pos) {
+          $scope.map.setCenter(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+          $scope.loading.hide();
+        }, function(error) {
+          alert('Unable to get location: ' + error.message);
+        });
+    };
+      
+    $scope.clickTest = function() {
+        alert('Example of infowindow with ng-click')
+    };
+
+    var codeAddress = function(address) {
+	  // var address = document.getElementById('address').value;
+	  geocoder.geocode( { 'address': address}, function(results, status) {
+	    if (status == google.maps.GeocoderStatus.OK) {
+	      map.setCenter(results[0].geometry.location);
+	      	var marker = new google.maps.Marker({
+		        map: map,
+		        position: results[0].geometry.location,
+		        title : $scope.currentMember.name
+	      	});
+	      	var contentString = "<div><a ng-click='clickTest()'>Click me!</a></div>";
+	        var compiled = $compile(contentString)($scope);
+
+	        var infowindow = new google.maps.InfoWindow({
+	          content: compiled[0]
+	        });
+
+	        // var marker = new google.maps.Marker({
+	        //   position: myLatlng,
+	        //   map: map,
+	        //   title: 'Uluru (Ayers Rock)'
+	        // });
+
+	        google.maps.event.addListener(marker, 'click', function() {
+	          infowindow.open(map,marker);
+	        });
+	    } else {
+	      alert('此地址查不到經緯度: ' + status);
+	    }
+	  });
+	}
+      
+    //2. 如果 Member 還未載入，則等待
+	if (!Members.isLoaded()) {
+		Members.setAfterRefreshDataHandler(function(members) {
+			fillUI();
+		});
+	}
+	else {
+		fillUI();
+	}
+
+
 
 });
 

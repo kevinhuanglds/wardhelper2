@@ -42,6 +42,7 @@ app.factory('OrgConstant', function () {
 
 app.factory('Members', function ($http, ServiceConstant) {
 	var _members=[];	
+	var _dicMembers = {};	//dictionary for members
 
 	var _isLoaded = false ;
 
@@ -58,6 +59,11 @@ app.factory('Members', function ($http, ServiceConstant) {
 
 		setMembers : function(members) {
 			_members = members ;
+			_dicMembers = {};
+			angular.forEach(members, function(mem) {
+				_dicMembers[mem.rec_no] = mem ;
+			});
+
 			this.setIsLoaded(true) ;
 			if (_afterRefreshDataHandler) {
 				_afterRefreshDataHandler(members);
@@ -66,6 +72,10 @@ app.factory('Members', function ($http, ServiceConstant) {
 
 		getMembers : function() {
 			return _members ;
+		},
+
+		getMemberByRecNo : function(rec_no) {
+			return _dicMembers[rec_no];
 		},
 
 		isLoaded : function() {

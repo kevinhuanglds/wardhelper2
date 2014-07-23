@@ -24,7 +24,13 @@
     <title>領袖小幫手</title>
 
     <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    
+    <!-- font-awesome -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
     <link href="css/style.css" rel="stylesheet">
+
+
 
     <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
     <link href="css/ionic.app.css" rel="stylesheet">
@@ -32,6 +38,9 @@
 
     <!-- ionic/angularjs js -->
     <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- Google Maps -->
+    <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAQmrI9lTaIHm9sKn0C0Weq6qp_BJRJaS8&sensor=true"></script>
 
     <!-- cordova script (this will be a 404 during development) -->
    <!--  <script src="cordova.js"></script> -->
