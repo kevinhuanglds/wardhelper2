@@ -42,6 +42,12 @@
     <!-- Google Maps -->
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAQmrI9lTaIHm9sKn0C0Weq6qp_BJRJaS8&sensor=true"></script>
 
+    <!-- load google api -->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+    </script>
+
     <!-- cordova script (this will be a 404 during development) -->
    <!--  <script src="cordova.js"></script> -->
 

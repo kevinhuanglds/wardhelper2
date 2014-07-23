@@ -2,9 +2,17 @@
   <button class="button button-icon" ng-click="toggleLeft()">
     <i class="icon ion-navicon-round"></i>
   </button>
-  <h1 class="title">出席狀況</h1>
-  
+  <h1 class="title">出席狀況</h1>  
 </ion-header-bar>
 
 <ion-content>
+	<div class="button-bar" style="border-radius: 20px">
+	    <a class="button" ng-class="{'button-energized': isActive('all')}" ng-click="setActive('all')" style="font-size:1.5em;">全</a>
+
+	    <a class="button" ng-repeat="org in orgs" ng-class="{'button-energized': isActive(org.key)}" ng-click="setActive(org.key)" style="font-size:1.5em;">{{ org.abbr }}</a>
+	    
+	</div>
+
+	<div class="card" id="chart_div" style="height:300px;">
+	</div>
 </ion-content>

@@ -345,16 +345,12 @@ app.controller('SetActiveCtrl', function ($scope, $http, Members, ServiceConstan
 */
 app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant, $ionicModal, $compile) {
 	
-	
-
 	var fillUI = function() {
 		$scope.members = Members.getMembers();
 		$scope.orgs = OrgConstant;
-		filterMem();
+		// filterMem();
 	};
 
-	// $scope.members = Members.getMembers();
-	// $scope.orgs = OrgConstant;
 	var memElder = [];
 	var memRelief = [];
 	var memYM = [];
@@ -365,33 +361,12 @@ app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant, $ionic
 	//指定要顯示的組織別
 	$scope.setActive = function(key) {
 		active_key = key;
-		showMems(key);
+		$scope.members = Members.getOrgMembers(key);
+		// showMems(key);
 	}
 	//判斷該組織別的按鈕是否是 active
 	$scope.isActive = function(key) {
 		return (key === active_key);
-	}
-
-	/*  篩選資料 */
-	var showMems = function(key) {
-		if (key === "elder") {
-			$scope.members = memElder;
-		}
-		else if (key === "relief") {
-			$scope.members = memRelief;
-		}
-		else if (key === "ym") {
-			$scope.members = memYM;
-		}
-		else if (key === "yw") {
-			$scope.members = memYW;
-		}
-		else if (key === "primary") {
-			$scope.members = memPrimary;
-		}
-		else {
-			$scope.members = Members.getMembers();
-		}
 	}
 
 	/*  確保只有一個 Member 被選取 */
@@ -410,35 +385,6 @@ app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant, $ionic
 		$scope.currentMember = Members.getMemberByRecNo(rec_no);
 		$scope.openModal();
 	}
-
-
-	/* 把成員分類到各個組織 */
-	var filterMem = function() {
-		var mems = Members.getMembers();
-		angular.forEach(mems, function(mem) {
-			if (mem.age < 12) {
-				memPrimary.push(mem);
-			}
-			else if (mem.age > 17) {
-				if (mem.gender == "男") {
-					memElder.push(mem);
-				}
-				else {
-					memRelief.push(mem);
-				}
-			}
-			else {
-				if (mem.gender == "男") {
-					memYM.push(mem);
-				}
-				else {
-					memYW.push(mem);
-				}
-			}
-		});
-	}
-
-	// filterMem();
 
 	$ionicModal.fromTemplateUrl('templates/info-detail.html', {
 	    scope: $scope,
@@ -478,25 +424,7 @@ app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant, $ionic
         geocoder = new google.maps.Geocoder();
 
         codeAddress($scope.currentMember.address);
-        
-        //Marker + infowindow + angularjs compiled ng-click
-        // var contentString = "<div><a ng-click='clickTest()'>Click me!</a></div>";
-        // var compiled = $compile(contentString)($scope);
-
-        // var infowindow = new google.maps.InfoWindow({
-        //   content: compiled[0]
-        // });
-
-        // // var marker = new google.maps.Marker({
-        // //   position: myLatlng,
-        // //   map: map,
-        // //   title: 'Uluru (Ayers Rock)'
-        // // });
-
-        // google.maps.event.addListener(marker, 'click', function() {
-        //   infowindow.open(map,marker);
-        // });
-
+       
         $scope.map = map;
     }
       
@@ -539,12 +467,6 @@ app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant, $ionic
 	          content: compiled[0]
 	        });
 
-	        // var marker = new google.maps.Marker({
-	        //   position: myLatlng,
-	        //   map: map,
-	        //   title: 'Uluru (Ayers Rock)'
-	        // });
-
 	        google.maps.event.addListener(marker, 'click', function() {
 	          infowindow.open(map,marker);
 	        });
@@ -563,6 +485,153 @@ app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant, $ionic
 	else {
 		fillUI();
 	}
+});
+
+
+app.controller('AttendStatisticsCtrl', function ($scope, OrgConstant, Util, Members , $http, ServiceConstant) {
+
+	$scope.orgs = OrgConstant;
+	var dicAttendanceByDate = {};	//按照日期分類的出席紀錄
+	var dicAttendanceByMemberID = {};	//按照教籍號碼的出席紀錄
+	var dicAttendanceByDateMemberID = {};	//以 date_memberid 當key 的出席紀錄，僅是用來加快查詢的速度
+	var alldays = [];	//12 週的星期日
+	var dicDays = {} ; //用來紀錄非同步呼叫是否都傳回來了？
+
+	var active_key = "all";
+	//指定要顯示的組織別
+	$scope.setActive = function(key) {
+		active_key = key;
+		refreshAttendanceUI();
+	}
+	//判斷該組織別的按鈕是否是 active
+	$scope.isActive = function(key) {
+		return (key === active_key);
+	}
+
+	var loadAttRecords = function() {
+		dicAttendanceByDate = {};
+		dicAttendanceByMemberID = {};
+		dicAttendanceByDateMemberID = {} ;
+
+		//1. 找出 3 個月內的每個星期日
+		alldays = [];
+		var today = new Date();
+		var lastSunday = dateDiff(today, 0-today.getDay());
+		// today.setDate(today.getDate() - today.getDay());
+		alldays.push(Util.formatDate(lastSunday));
+		dicDays = {};	
+		for(var i=1; i<12; i++) {
+			var theDate = Util.formatDate(dateDiff(lastSunday, (0-i * 7)));
+			alldays.push( theDate);
+			dicDays[theDate] = "none" ;	//預設這天資料尚未載入
+		}
+		alldays.sort();	//從小到大排序
+
+		//2. 找出每一個星期日的出席名單
+		angular.forEach(alldays, function(date) {
+
+			$http.get(ServiceConstant.attendance + "?date=" + date)
+			.success(function(data, status) {
+
+				angular.forEach(data, function(att) {
+
+					if (!dicAttendanceByDate[date]) {
+						dicAttendanceByDate[date] = [];
+					}
+					dicAttendanceByDate[date].push(att);
+
+					if (!dicAttendanceByMemberID[att.member.id]) {
+						dicAttendanceByMemberID[att.member.id] = [];
+					}
+					dicAttendanceByMemberID[att.member.id].push(att);
+
+					dicAttendanceByDateMemberID[date + "_" + att.member.id ]= att;
+
+				});
+
+				dicDays[date] = "success";	//這天資料已經載入成功
+				console.log(" == get att record successfully for date : " + date );
+				
+		  		refreshAttendanceUI();
+		  	})
+		  	.error(function(errmsg, status) {
+		  		dicDays[theDate] = "fail";  //這天資料載入失敗
+		  		alert("載入出席紀錄時發生錯誤!" +  errmsg)
+		  		refreshAttendanceUI();
+		  	});
+		});
+
+		
+	}
+
+	//3. 計算統計每一個星期日的出席人數，以及每一個人的出席紀錄
+	var refreshAttendanceUI = function() {
+		//a. 判斷是否載入成功
+		var loadComplete = isLoadComplete();
+		console.log(" isLoadComplete : " + loadComplete );
+		if (!loadComplete) {
+			
+			return ;
+		}
+		//b. 畫統計圖
+		drawChart();
+
+		//c. 印出人名
+	};
+
+	var drawChart = function() {
+		var orgMembers = Members.getOrgMembers(active_key);
+
+		var values = [];
+		values.push(['日期', '人數']);
+		angular.forEach(alldays, function(date) {
+			//找出這天在指定組織的出席人數
+			var count = 0;
+			angular.forEach(orgMembers, function(mem) {
+				var key = date + "_" + mem.id ;
+				if (dicAttendanceByDateMemberID[key])
+					count += 1
+			});
+			values.push([ date, count ]);
+		});
+
+		var data = google.visualization.arrayToDataTable( values );
+
+        var options = {
+          title: '12週內' + active_key + '的出席統計'
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+
+	};
+
+	var isLoadComplete = function() {
+		var result = true ;
+
+		console.log(" === isComplete  ======")
+		
+		angular.forEach(alldays, function(date) {
+			var is_success = (dicDays[date]);
+			console.log(date + " : " + is_success);
+			result = result && (dicDays[date] === "success");
+		})
+		return result ;
+	};
+
+	var dateDiff = function(orgDate, days) {
+		var d = new Date();
+
+		var timer = orgDate.getTime();
+
+		var newTimer = timer + days * 24 * 60 * 60 * 1000;
+
+		d.setTime(newTimer);
+
+		return d;
+	};
+
+	loadAttRecords();
 
 
 
