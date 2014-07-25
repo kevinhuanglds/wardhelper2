@@ -5,7 +5,7 @@
   <h1 class="title">出席狀況</h1>  
 </ion-header-bar>
 
-<ion-content>
+<ion-content padding="true">
 	<div class="button-bar" style="border-radius: 20px">
 	    <a class="button" ng-class="{'button-energized': isActive('all')}" ng-click="setActive('all')" style="font-size:1.5em;">全</a>
 
@@ -13,6 +13,53 @@
 	    
 	</div>
 
+
+
 	<div class="card" id="chart_div" style="height:300px;">
+	</div>
+
+	<dic class="card">
+		<div class="item item-divider">
+		    至少出席一次之成員名單： ( {{ attendances.length }} 人)：
+		    <button class="button button-outline icon {{ (show_att_item) ? 'ion-minus' : 'ion-plus' }}"  style="float:right;" ng-click="showAttHideItems()"></button>
+		</div>
+		<div class="item item-text-wrap row" ng-repeat="attStatus in attendances" ng-if="show_att_item">
+			<div class="col-25">
+				<i class="fa fa-male fa-lg" ng-if="attStatus.member.gender=='男'"></i>
+			  	<i class="fa fa-female fa-lg" ng-if="attStatus.member.gender=='女'"></i>
+			  	 
+			    {{ attStatus.member.name }}
+			    ({{ attStatus.member.age }})
+		    </div>
+		    <div class="col" style="color:{{ getAlarmLight(attStatus.weekStat[0]) }}"> {{ attStatus.weekStat[0]}}</div>
+		    <div class="col" style="color:{{ getAlarmLight(attStatus.weekStat[1]) }}"> {{ attStatus.weekStat[1]}}</div>
+		    <div class="col" style="color:{{ getAlarmLight(attStatus.weekStat[2]) }}"> 
+		    	{{ attStatus.weekStat[2] }}
+		    	<span ng-if="attStatus.continue_absence > 0">*</span>
+		    	<span ng-if="attStatus.continue_absence > 1">*</span>
+		    	<span ng-if="attStatus.continue_absence > 2">*</span>
+		    	<span ng-if="attStatus.continue_absence > 3">*</span>
+		    </div>
+		    <div class="col-33">
+		    	<span ng-repeat="absDay in attStatus.absenceDays" style="font-size:0.8em">
+		    	{{ toSimpleDate(absDay) }},
+		    	</span>
+		    </div>
+
+		</div>
+	</dic>
+
+	<div class="card" >
+		<div class="item item-divider">
+		    一次都沒有出現過的 ( {{ noAttendances.length }} 人)：
+		    <button class="button button-outline icon {{ (show_noatt_item) ? 'ion-minus' : 'ion-plus' }}"  style="float:right;" ng-click="showHideItems()"></button>
+		</div>
+		<div class="item item-text-wrap" ng-repeat="mem in noAttendances" ng-if="show_noatt_item">
+			<i class="fa fa-male fa-lg" ng-if="mem.gender=='男'"></i>
+		  	<i class="fa fa-female fa-lg" ng-if="mem.gender=='女'"></i>
+		  	 
+		    {{ mem.name }}
+		    ({{ mem.age }})
+		</div>
 	</div>
 </ion-content>

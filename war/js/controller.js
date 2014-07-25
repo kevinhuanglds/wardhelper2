@@ -452,7 +452,7 @@ app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant, $ionic
 
     var codeAddress = function(address) {
 	  // var address = document.getElementById('address').value;
-	  geocoder.geocode( { 'address': address}, function(results, status) {
+	  geocoder.geocode( { 'address': address.trim(), 'language' : 'zh-TW'}, function(results, status) {
 	    if (status == google.maps.GeocoderStatus.OK) {
 	      map.setCenter(results[0].geometry.location);
 	      	var marker = new google.maps.Marker({
@@ -560,8 +560,6 @@ app.controller('AttendStatisticsCtrl', function ($scope, OrgConstant, Util, Memb
 		  		refreshAttendanceUI();
 		  	});
 		});
-
-		
 	}
 
 	//3. 計算統計每一個星期日的出席人數，以及每一個人的出席紀錄
@@ -570,20 +568,105 @@ app.controller('AttendStatisticsCtrl', function ($scope, OrgConstant, Util, Memb
 		var loadComplete = isLoadComplete();
 		console.log(" isLoadComplete : " + loadComplete );
 		if (!loadComplete) {
-			
 			return ;
 		}
 		//b. 畫統計圖
 		drawChart();
 
 		//c. 印出人名
+		printMemberStatus();
 	};
+
+	//列印成員的出席紀錄
+	var printMemberStatus = function() {
+		var orgMembers = Members.getOrgMembers(active_key);
+		var noAttendances = [];	//一次都沒有出席過的成員，結果要按照姓名排列
+		var attendances = [];	//至少出席過一次的成員
+		/*邏輯思考：
+			1. 對於組織中成員，找出每個人的出席次數。完全沒出席過的，就放到 noAttendance，有出席過的，則計算每四周的出席次數。
+			2. 找出最近三次出席狀況，分成綠(最近一週未出席)、黃(連續兩週未出席)、紅(連續三週未出席)
+			3. 放置資料結構：attStatus : { member , weekStat : [ 3,2,1], continue_absence: 3, attRecords:[ attrec, attrec, ... ] }
+		*/
+		angular.forEach(orgMembers, function(mem) {
+			if (!dicAttendanceByMemberID[mem.id]) {
+				noAttendances.push(mem) ;
+			}
+			else {
+				var attStatus = {};
+				attStatus.member = mem ;
+				attStatus.attRecords = dicAttendanceByMemberID[mem.id];
+				attStatus.absenceDays = [];
+
+				//判斷每個四週的出席次數
+				var count1=0, count2=0, count3 =0;
+				for(var i=0; i< alldays.length; i++) {
+					var date = alldays[i];
+					var key = date + "_" + mem.id ;
+					if (dicAttendanceByDateMemberID[key]) {
+						if (i < 4) {
+							count1 += 1;
+						}
+						else if (i < 8) {
+							count2 += 1;
+						}
+						else {
+							count3 += 1;
+						}
+					}
+					else {
+						attStatus.absenceDays.push(date);
+					}
+				}
+				attStatus.weekStat = [count1, count2, count3];
+				attStatus.continue_absence = CalculateContinueAbsence(mem);	
+				
+				// console.log(attStatus.member.name + ", abs=" + attStatus.continue_absence + ", alarmLight=" + attStatus.getAlarmLight() );
+
+				attendances.push(attStatus);			
+			}
+		});
+
+		$scope.noAttendances = noAttendances;
+		$scope.attendances = attendances;
+
+	};
+
+	/* 計算連續缺席的週數，最多 3 週 */
+	var CalculateContinueAbsence = function(mem) {
+		for(var i=1; i<4; i++) {
+			var j = 4-i ;
+			console.log( mem.name + ", 計算 j=" + j);
+			if (isContinueAbsence(mem, j))
+				return j ;
+		}
+		return 0;
+	};
+
+	/* 計算是否連續缺席指定的週數 */
+	var isContinueAbsence = function(mem, weekCount) {
+		var aryKeys = [];
+		//找出這些週的日期，並產生要比對缺曠紀錄的 key
+		for(var i=0; i<weekCount; i++) {
+			aryKeys.push(alldays[alldays.length -1 -i] + "_" + mem.id);
+		}
+
+		var isAbsence = true ;
+		angular.forEach(aryKeys, function(key) {
+			isAbsence = isAbsence && (!dicAttendanceByDateMemberID[key]);
+		});
+		return isAbsence;
+	}
 
 	var drawChart = function() {
 		var orgMembers = Members.getOrgMembers(active_key);
 
+		var data = new google.visualization.DataTable();
+        data.addColumn('string', '日期');
+        data.addColumn('number', '人數');
+        data.addColumn({type: 'number', role: 'annotation'});
+
 		var values = [];
-		values.push(['日期', '人數']);
+		// values.push(['日期', {type: 'string', role: 'annotation'}, '人數']);
 		angular.forEach(alldays, function(date) {
 			//找出這天在指定組織的出席人數
 			var count = 0;
@@ -592,10 +675,12 @@ app.controller('AttendStatisticsCtrl', function ($scope, OrgConstant, Util, Memb
 				if (dicAttendanceByDateMemberID[key])
 					count += 1
 			});
-			values.push([ date, count ]);
+			values.push([ $scope.toSimpleDate(date), count, count]);
+
 		});
 
-		var data = google.visualization.arrayToDataTable( values );
+		data.addRows(values);
+		// var data = google.visualization.arrayToDataTable( values );
 
         var options = {
           title: '12週內' + active_key + '的出席統計'
@@ -631,7 +716,38 @@ app.controller('AttendStatisticsCtrl', function ($scope, OrgConstant, Util, Memb
 		return d;
 	};
 
+	/* 將日期由 yyyy-mm-dd 格式轉成 mm/dd */
+	$scope.toSimpleDate = function(dateString) {
+		var dt = new Date(dateString);
+		return (dt.getMonth() + 1) + "/" + dt.getDate();
+	}
+
+	$scope.getAlarmLight = function(count) {
+		var result = 'red';
+		if (count > 3) {
+			result = 'black';
+		}
+		else if (count > 2) {
+			result = '#04B404';
+		}
+		else if (count > 1) {
+			result = 'blue';
+		}
+		return result ;
+	};
+
 	loadAttRecords();
+
+	$scope.show_noatt_item = true;
+
+	$scope.showHideItems = function() {
+		$scope.show_noatt_item = !$scope.show_noatt_item;
+	}
+
+	$scope.show_att_item = true ;
+	$scope.showAttHideItems = function() {
+		$scope.show_att_item = !$scope.show_att_item;
+	}
 
 
 

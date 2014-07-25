@@ -10,6 +10,14 @@ app.factory('Util', function () {
 			var theDate = date.getDate();
 
 			return year + "-" + (month < 10 ? ("0" + month) : month) + "-" + ((theDate < 10) ? ("0" + theDate) : theDate);
+		},
+
+		formatSimpleDate : function(date) {
+			var month = date.getMonth() + 1;
+			var theDate = date.getDate();
+
+			return month + "/" + theDate;
+
 		}
 	};
 })

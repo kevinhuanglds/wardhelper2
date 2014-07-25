@@ -55,7 +55,12 @@ public class AccountDAO {
 			String email = user.getEmail();
 			if (email.equals("kevinhuang.lds@gmail.com")
 					|| email.equals("test@example.com")
-					|| email.equals("larryyang36@gmail.com")) {
+					|| email.equals("larryyang36@gmail.com")
+					|| email.equals("nancyyu.lds@gmail.com")
+					|| email.equals("shenbell@gmail.com")
+					|| email.equals("anne.wu@ischool.com.tw")
+					|| email.equals("jackpeng16@gmail.com")
+			) {
 				result = true;
 			} else {
 				result = AccountDAO.isExised(user.getEmail());
