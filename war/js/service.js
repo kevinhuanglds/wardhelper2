@@ -1,7 +1,6 @@
 
 
 app.factory('Util', function () {
-	
 
 	return {
 		formatDate : function(date) {
@@ -17,7 +16,44 @@ app.factory('Util', function () {
 			var theDate = date.getDate();
 
 			return month + "/" + theDate;
+		},
 
+		toSimpleDate : function(dateString) {
+			var dt = new Date(dateString);
+			return (dt.getMonth() + 1) + "/" + dt.getDate();
+		},
+
+		/* 找到最接近的星期日 */
+		getLastSunday : function() {
+			var today = new Date();
+			var lastSunday = this.dateDiff(today, 0-today.getDay());
+			return lastSunday ;
+		},
+
+		/* 找出過去幾個安息日的日期 */
+		getPastWeeks : function(weekCount) {
+			alldays = [];
+			var lastSunday = this.getLastSunday();
+			alldays.push(this.formatDate(lastSunday));
+			dicDays = {};	
+			for(var i=1; i<weekCount; i++) {
+				var theDate = this.formatDate(this.dateDiff(lastSunday, (0-i * 7)));
+				alldays.push( theDate);
+				dicDays[theDate] = "none" ;	//預設這天資料尚未載入
+			}
+			alldays.sort();	//從小到大排序
+
+			return alldays ;
+		},
+
+		/* 取得指定差異時間的日期 */
+		dateDiff : function(orgDate, days) {
+			var d = new Date();
+			var timer = orgDate.getTime();
+			var newTimer = timer + days * 24 * 60 * 60 * 1000;
+			d.setTime(newTimer);
+
+			return d;
 		}
 	};
 })
@@ -32,7 +68,8 @@ app.factory('ServiceConstant', function ($location) {
 		attendance : _host + "/attendance",
 		account : _host + "/account",
 		update_member : _host + "/upload_member",
-		set_active : _host + "/set_active"
+		set_active : _host + "/set_active",
+		absence_record : _host + "/absence_reason"
 	};
 });
 

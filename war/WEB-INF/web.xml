@@ -28,6 +28,14 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-name>SetActiveStatus</servlet-name>
 		<servlet-class>org.lds.wardcare.SetActiveStatusServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>AbsenceReason</servlet-name>
+		<servlet-class>org.lds.wardcare.AbsenceServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AbsenceReason</servlet-name>
+		<url-pattern>/absence_reason</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>SetActiveStatus</servlet-name>
 		<url-pattern>/set_active</url-pattern>

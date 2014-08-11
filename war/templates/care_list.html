@@ -1,0 +1,82 @@
+<ion-header-bar class="bar-calm">
+  <button class="button button-icon" ng-click="toggleLeft()">
+    <i class="icon ion-navicon-round"></i>
+  </button>
+  <h1 class="title">{{ target_simple_date }} 安息日關懷名單 ({{ absRecs.length }})</h1>
+</ion-header-bar>
+
+<ion-content padding="true">
+	
+	<div class="list">
+	  <div class="button-bar" style="border-radius: 20px">
+
+	    <a class="button" ng-repeat="date in alldays" ng-class="{'button-calm': isActive(date)}" ng-click="showByDate(date)" style="font-size:1.5em;">{{ toSimpleDate(date) }}</a>
+	    
+	  </div>
+  	</div>
+
+  	<div class="list">
+	  <div class="item item-divider">
+	    長定組 ( {{ absElders.length }})
+	  </div>
+	  <a class="item item-icon-right" ng-click="editAbsReason(abs)" ng-repeat="abs in absElders">
+	    {{ abs.name }}
+	    <i class="icon ion-edit" ng-click="editAbsReason(abs)"></i>
+	    <span class="item-note" >
+	      {{ abs.absRecord.reason }}
+	    </span>
+	  </a>
+	</div>
+
+	<div class="list">
+	  <div class="item item-divider">
+	    慈助會 ( {{ absReliefs.length }})
+	  </div>
+	  <a class="item item-icon-right" ng-click="editAbsReason(abs)" ng-repeat="abs in absReliefs">
+	    {{ abs.name }} 
+	    <i class="icon ion-edit" ng-click="editAbsReason(abs)"></i>
+	    <span class="item-note" >
+	      {{ abs.absRecord.reason }}
+	    </span>
+	  </a>
+	</div>
+
+	<div class="list">
+	  <div class="item item-divider">
+	    男青年 ( {{ absYMs.length }})
+	  </div>
+	  <a class="item item-icon-right" ng-click="editAbsReason(abs)" ng-repeat="abs in absYMs">
+	    {{ abs.name }} 
+	    <i class="icon ion-edit" ng-click="editAbsReason(abs)"></i>
+	    <span class="item-note" >
+	      {{ abs.absRecord.reason }}
+	    </span>
+	  </a>
+	</div>
+
+	<div class="list">
+	  <div class="item item-divider">
+	    女青年 ( {{ absYWs.length }})
+	  </div>
+	  <a class="item item-icon-right" ng-click="editAbsReason(abs)" ng-repeat="abs in absYWs">
+	    {{ abs.name }} 
+	    <i class="icon ion-edit" ng-click="editAbsReason(abs)"></i>
+	    <span class="item-note" >
+	      {{ abs.absRecord.reason }}
+	    </span>
+	  </a>
+	</div>
+
+	<div class="list">
+	  <div class="item item-divider">
+	    初級會 ( {{ absPrimarys.length }})
+	  </div>
+	  <a class="item item-icon-right" ng-click="editAbsReason(abs)" ng-repeat="abs in absPrimarys">
+	    {{ abs.name }} 
+	    <i class="icon ion-edit" ng-click="editAbsReason(abs)"></i>
+	    <span class="item-note" >
+	      {{ abs.absRecord.reason }}
+	    </span>
+	  </a>
+	</div>
+</ion-content>

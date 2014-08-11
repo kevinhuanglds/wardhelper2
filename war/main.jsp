@@ -76,12 +76,14 @@
               <i class="icon ion-android-social" ></i>
               點名
             </a>
-
+            <a class="item item-icon-left"  ui-sref="careList" ng-click="toggleLeft();">
+              <i class="icon ion-ios7-heart"></i>
+              安息日關懷名單
+            </a>
             <a class="item item-icon-left"  ui-sref="statistics" ng-click="toggleLeft();">
               <i class="icon ion-stats-bars"></i>
               出席狀況
             </a>
-
             <a class="item item-icon-left" ui-sref="info"  ng-click="toggleLeft();">
               <i class="icon ion-android-contact"></i>
               查詢資訊

@@ -29,6 +29,11 @@ app.config(function ( $stateProvider, $urlRouterProvider) {
     templateUrl : 'templates/rollcall.html',
     controller : 'RollCallCtrl'
   })
+  .state ('careList' , {
+    url : '/careList',
+    templateUrl : 'templates/care_list.html',
+    controller : 'CareListCtrl'
+  })
   .state ('statistics' , {
     url : '/statistics',
     templateUrl : 'templates/statistics.html',

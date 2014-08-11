@@ -201,14 +201,6 @@ app.controller('RollCallCtrl', function ($scope, $ionicModal, Members, $http, Se
 });
 
 
-/*
-*	處理出席統計的 Controller ....
-*/
-app.controller('AttendStatisticsCtrl', function ($scope) {
-	
-    
-});
-
 
 /**
 *  處理資料匯入的 Controller 
@@ -263,11 +255,7 @@ app.controller('ImportCtrl', function ($scope, $ionicLoading , $http, ServiceCon
 
 
 		mem.upload_status = "uploading ...";
-/*
-		rec_no,  name,  gender,  tel_h,  address ,  age ,
-		birthday , confirm_date, is_active, is_endowment, is_rm , 
-		is_sealed, pristhood
-*/
+
 		var post_data = "rec_no=" + mem.rec_no + "&name=" + mem.name + "&gender=" + mem.gender +
 						"&tel_h=" + mem.tel_h + "&address=" + mem.address + "&age=" + mem.age +
 						"&birthday=" + mem.birthday + "&confirm_date=" + mem.confirm_date + 
@@ -297,8 +285,8 @@ app.controller('ImportCtrl', function ($scope, $ionicLoading , $http, ServiceCon
 
 });
 
-/*
-
+/*  
+	處理  設定活躍況狀的 Controller 
 */
 app.controller('SetActiveCtrl', function ($scope, $http, Members, ServiceConstant) {
 	
@@ -340,8 +328,8 @@ app.controller('SetActiveCtrl', function ($scope, $http, Members, ServiceConstan
 
 });
 
-/*
-
+/*  
+	處理  查詢個人資訊的 Controller 
 */
 app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant, $ionicModal, $compile) {
 	
@@ -488,6 +476,9 @@ app.controller('InfoCtrl', function ($scope, $http, Members, OrgConstant, $ionic
 });
 
 
+/*  
+	處理  查詢出席狀況的 Controller 
+*/
 app.controller('AttendStatisticsCtrl', function ($scope, OrgConstant, Util, Members , $http, ServiceConstant) {
 
 	$scope.orgs = OrgConstant;
@@ -514,18 +505,7 @@ app.controller('AttendStatisticsCtrl', function ($scope, OrgConstant, Util, Memb
 		dicAttendanceByDateMemberID = {} ;
 
 		//1. 找出 3 個月內的每個星期日
-		alldays = [];
-		var today = new Date();
-		var lastSunday = dateDiff(today, 0-today.getDay());
-		// today.setDate(today.getDate() - today.getDay());
-		alldays.push(Util.formatDate(lastSunday));
-		dicDays = {};	
-		for(var i=1; i<12; i++) {
-			var theDate = Util.formatDate(dateDiff(lastSunday, (0-i * 7)));
-			alldays.push( theDate);
-			dicDays[theDate] = "none" ;	//預設這天資料尚未載入
-		}
-		alldays.sort();	//從小到大排序
+		alldays = Util.getPastWeeks(12);
 
 		//2. 找出每一個星期日的出席名單
 		angular.forEach(alldays, function(date) {
@@ -584,7 +564,7 @@ app.controller('AttendStatisticsCtrl', function ($scope, OrgConstant, Util, Memb
 		var attendances = [];	//至少出席過一次的成員
 		/*邏輯思考：
 			1. 對於組織中成員，找出每個人的出席次數。完全沒出席過的，就放到 noAttendance，有出席過的，則計算每四周的出席次數。
-			2. 找出最近三次出席狀況，分成綠(最近一週未出席)、黃(連續兩週未出席)、紅(連續三週未出席)
+			2. 找出最近三次出席狀況，分成綠(最近一週未出席)、藍(連續兩週未出席)、紅(連續三週未出席)
 			3. 放置資料結構：attStatus : { member , weekStat : [ 3,2,1], continue_absence: 3, attRecords:[ attrec, attrec, ... ] }
 		*/
 		angular.forEach(orgMembers, function(mem) {
@@ -619,8 +599,6 @@ app.controller('AttendStatisticsCtrl', function ($scope, OrgConstant, Util, Memb
 				}
 				attStatus.weekStat = [count1, count2, count3];
 				attStatus.continue_absence = CalculateContinueAbsence(mem);	
-				
-				// console.log(attStatus.member.name + ", abs=" + attStatus.continue_absence + ", alarmLight=" + attStatus.getAlarmLight() );
 
 				attendances.push(attStatus);			
 			}
@@ -704,22 +682,11 @@ app.controller('AttendStatisticsCtrl', function ($scope, OrgConstant, Util, Memb
 		return result ;
 	};
 
-	var dateDiff = function(orgDate, days) {
-		var d = new Date();
-
-		var timer = orgDate.getTime();
-
-		var newTimer = timer + days * 24 * 60 * 60 * 1000;
-
-		d.setTime(newTimer);
-
-		return d;
-	};
-
 	/* 將日期由 yyyy-mm-dd 格式轉成 mm/dd */
 	$scope.toSimpleDate = function(dateString) {
-		var dt = new Date(dateString);
-		return (dt.getMonth() + 1) + "/" + dt.getDate();
+		// var dt = new Date(dateString);
+		// return (dt.getMonth() + 1) + "/" + dt.getDate();
+		return Util.toSimpleDate(dateString);
 	}
 
 	$scope.getAlarmLight = function(count) {
@@ -745,11 +712,216 @@ app.controller('AttendStatisticsCtrl', function ($scope, OrgConstant, Util, Memb
 	}
 
 	$scope.show_att_item = true ;
+	
 	$scope.showAttHideItems = function() {
 		$scope.show_att_item = !$scope.show_att_item;
 	}
 
+});
 
+/*  
+	處理  安息日關懷名單的 Controller 
+*/
+app.controller('CareListCtrl', function ($scope,  $ionicModal, Members, $http, ServiceConstant, $ionicLoading, Util) {
+	
+	$scope.alldays = Util.getPastWeeks(4);		//找出4週內的安息日
+
+
+	var isLoadingAttendanceRecords = false ;
+	var isLoadingAbsenceRecords = false ;
+	var dicAtts = {};	//dictionary of attendance records, the key is the rec_no of a member.
+	var dicAbs = {};	
+	var target_date = Util.formatDate(Util.getLastSunday());
+	
+
+	/*  load attendance records for specificed date */
+	var loadAttendRecords = function(date) {
+		target_date = date ;
+		
+		isLoadingAttendanceRecords = true ;
+		
+		dicAtts = {}; //reset
+		
+		$http.get(ServiceConstant.attendance + "?date=" + date)
+		.success(function(data, status) {
+			angular.forEach(data, function(att) {
+				dicAtts[att.member.id] = att;
+			});
+			isLoadingAttendanceRecords = false;
+	  		refreshUI();
+	  	})
+	  	.error(function(errmsg, status) {
+	  		isLoadingAttendanceRecords = false;
+	  		$ionicLoading.hide();
+	  		alert("載入出席紀錄時發生錯誤!" +  errmsg)
+	  	});
+	}
+
+	/* 載入某一日的未出席原因 */
+	var loadAbsenceReasonRecords = function(date) {
+		isLoadingAbsenceRecords = true ;
+		
+		dicAbs = {}; //reset
+		
+		$http.get(ServiceConstant.absence_record + "?date=" + date)
+		.success(function(data, status) {
+			angular.forEach(data, function(abs) {
+				dicAbs[abs.member.id] = abs;
+			});
+			isLoadingAbsenceRecords = false;
+	  		refreshUI();
+	  	})
+	  	.error(function(errmsg, status) {
+	  		isLoadingAbsenceRecords = false;
+	  		$ionicLoading.hide();
+	  		alert("載入未出席紀錄時發生錯誤!" +  errmsg)
+	  	});
+
+	}
+
+
+	var refreshUI = function() {
+
+		//1. 如果還在載入 attendance records ，則跳過
+		if (isLoadingAttendanceRecords) {
+			return ;
+		}
+
+		//1. 如果還在載入 absence records ，則跳過
+		if (isLoadingAbsenceRecords) {
+			return ;
+		}
+		
+		//2. 如果 Member 還未載入，則等待
+		if (!Members.isLoaded()) {
+			Members.setAfterRefreshDataHandler(function(members) {
+				calculateAbsRecs(members);
+			});
+		}
+		else {
+			calculateAbsRecs(Members.getMembers());
+		}
+		
+	  	$ionicLoading.hide();
+	};
+
+	var calculateAbsRecs = function(members) {
+		$scope.absRecs = [];
+		$scope.absElders = getAbsMembers(Members.getElderMembers()); 
+		$scope.absReliefs = getAbsMembers(Members.getReliefMembers()); 
+		$scope.absYMs = getAbsMembers(Members.getYMMembers()); 
+		$scope.absYWs=getAbsMembers(Members.getYWMembers()); 
+		$scope.absPrimary=getAbsMembers(Members.getPrimaryMembers()); 
+
+	}
+
+	var getAbsMembers = function(members) {
+		result = [];
+		angular.forEach(members, function(member) {
+			if (member.is_active) {
+				if (!dicAtts[member.id]) {
+					var abs = {};
+					// abs.rec_no = member.rec_no;
+					abs.member = member ;
+					abs.name = member.name;
+					abs.date = target_date ;
+					abs.absRecord = (dicAbs[member.id] ? dicAbs[member.id] : undefined);
+					//abs.reason = "test , test";
+					abs.isUpdating = false ;	//是否正在更新中，目的是當使用者按下按鈕時，避免 Server 處理太久，畫面看起來鈍鈍的，所以先變個暫時的顏色。
+				
+					result.push(abs);
+					$scope.absRecs.push(abs);
+				}
+			};
+
+		});
+
+		return result ;
+	}
+
+	/* 將日期由 yyyy-mm-dd 格式轉成 mm/dd */
+	$scope.toSimpleDate = function(dateString) {
+		// var dt = new Date(dateString);
+		// return (dt.getMonth() + 1) + "/" + dt.getDate();
+		return Util.toSimpleDate(dateString);
+	}
+
+	//指定要顯示的組織別
+	$scope.showByDate = function(date) {
+		target_date = date;
+		$scope.target_simple_date = $scope.toSimpleDate(date);
+		loadRecords();
+	}
+
+	//判斷該組織別的按鈕是否是 active
+	$scope.isActive = function(date) {
+		return (date === target_date);
+	}
+
+	var loadRecords = function() {
+
+		$ionicLoading.show({
+	      template: '載入 ' + target_date + ' 出席紀錄...'
+	    });
+
+		loadAttendRecords(target_date);
+		loadAbsenceReasonRecords(target_date);
+	}
+
+	loadRecords();
+
+	// Modal initialization ....
+	$ionicModal.fromTemplateUrl('templates/edit_abs_reason.html', {
+	    scope: $scope,
+	    animation: 'slide-in-up'
+	}).then(function(modal) {
+	    $scope.modal = modal;
+	});
+	$scope.openModal = function() {
+	    $scope.modal.show();
+	};
+	$scope.closeModal = function() {
+	    $scope.modal.hide();
+	};
+	//Cleanup the modal when we're done with it!
+	$scope.$on('$destroy', function() {
+	    $scope.modal.remove();
+	});
+
+	$scope.editAbsReason = function(absProxy) {
+		$scope.currentAbsProxy = absProxy ;
+		$scope.currentAbsProxy.newReason = ($scope.currentAbsProxy.absRecord ? $scope.currentAbsProxy.absRecord.reason : "") ;
+		$scope.openModal();
+		console.log($scope.currentAbsProxy);
+	};
+
+	$scope.saveReason = function() {
+
+		var mode="add";	//其實 server 會檢查，只要不是 delete 就好了。
+		var request = $http({
+                    method: "post",
+                    url: ServiceConstant.absence_record,
+                    data: "mode=" + mode + "&rec_no=" + $scope.currentAbsProxy.member.rec_no + "&date=" + target_date + "&meeting=0&reason=" + $scope.currentAbsProxy.newReason ,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+        });
+
+
+        request.success(
+            function( absRecord ) {
+            	$scope.currentAbsProxy.absRecord = absRecord ;
+            	$scope.closeModal();
+            }
+        ).error(function() {
+        	$scope.closeModal();
+        });
+
+	};
+
+		//1. load attendance list
+		//2. load absence reason List
+		//3. for each active member , if it is not in the attendance list, then show this member
+
+	
 
 });
 

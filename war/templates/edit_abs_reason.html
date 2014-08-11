@@ -1,0 +1,21 @@
+<div class="modal">
+    <ion-header-bar class="bar-royal">
+      <h1 class="title">{{ currentAbsProxy.member.name }} ( {{ currentAbsProxy.member.rec_no }}) 未出席原因</h1>
+      <button class="button button-icon ion-ios7-close-outline" ng-click="closeModal()"></button>
+    </ion-header-bar>
+    <ion-content padding="true">
+
+	    <div class="list">
+	    	<label class="item item-input">
+			    <input type="text" placeholder="輸入未出席原因 ... " ng-model="currentAbsProxy.newReason">
+			</label>
+		</div>
+		<div class="padding">
+			<button class="button button-block button-royal" ng-click="saveReason()">確定</button>
+		</div>
+    	
+    </ion-content>
+    <ion-footer-bar class="bar-royal">
+      
+    </ion-footer-bar>
+</div>

@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.lds.wardcare.dal.AbsenceReasonDAO;
 import org.lds.wardcare.dal.AccountDAO;
 
 import com.google.appengine.api.datastore.Entity;
@@ -82,6 +83,33 @@ public class Util {
 			Key keyMember = (Key)ent.getProperty("member");
 			JSONObject obj = new JSONObject(g.toJson(keyMember));
 			json.put("member", obj);
+		}
+		return json;
+	}
+	
+	public static JSONArray AbsenceToJsonArray(List<Entity> entities) throws JSONException {
+		JSONArray ary = new JSONArray();
+		for(Entity ent : entities) {
+			ary.put(AbsenceToJsonObject(ent));
+		}
+		return ary;
+	}
+	
+	public static JSONObject AbsenceToJsonObject(Entity ent) throws JSONException {
+		JSONObject json = new JSONObject();
+		Gson g = new Gson();
+		if (ent != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			String att_date = sdf.format((Date)ent.getProperty(AbsenceReasonDAO.ABS_DATE));
+			json.put(AbsenceReasonDAO.ABS_DATE, att_date);
+			
+			json.put(AbsenceReasonDAO.CREATED, (ent.getProperty(AbsenceReasonDAO.CREATED) == null ? "" : sdf.format((Date)ent.getProperty(AbsenceReasonDAO.CREATED))));
+			json.put(AbsenceReasonDAO.REASON, (ent.getProperty(AbsenceReasonDAO.REASON) == null ? "" : ent.getProperty(AbsenceReasonDAO.REASON)));
+			String meeting = ent.getProperty(AbsenceReasonDAO.MEETING).toString();
+			json.put(AbsenceReasonDAO.MEETING, Integer.parseInt(meeting));
+			Key keyMember = (Key)ent.getProperty(AbsenceReasonDAO.MEMBER);
+			JSONObject obj = new JSONObject(g.toJson(keyMember));
+			json.put(AbsenceReasonDAO.MEMBER, obj);
 		}
 		return json;
 	}

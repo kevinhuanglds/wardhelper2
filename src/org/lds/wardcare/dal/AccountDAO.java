@@ -59,7 +59,11 @@ public class AccountDAO {
 					|| email.equals("nancyyu.lds@gmail.com")
 					|| email.equals("shenbell@gmail.com")
 					|| email.equals("anne.wu@ischool.com.tw")
+					|| email.equals("lihping.li@gmail.com")
+					|| email.equals("pennyjason123@gmail.com")
 					|| email.equals("jackpeng16@gmail.com")
+					|| email.equals("mailsailfish@gmail.com")
+					|| email.equals("wu035233411@gmail.com")
 			) {
 				result = true;
 			} else {
